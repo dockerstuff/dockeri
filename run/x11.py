@@ -34,7 +34,7 @@ def x114darwin():
     return '{0}:0'.format(vmip)
 
 def x114linux():
-    return 'unix:{}'.format(_DISPLAY)
+    return 'unix{}'.format(_DISPLAY)
 
 def get_DISPLAY():
     if platform.system().upper() == 'DARWIN':
