@@ -5,7 +5,7 @@ import os
 
 parser = argparse.ArgumentParser(description='Interface for Docker containers.')
 
-parser.add_argument('image', choices=['annz','ds9','browse'],
+parser.add_argument('image', choices=['annz','ds9','browse','asdcbibtool'],
         help='alias/name of the image to run.')
 
 parser.add_argument('-i','--input',dest='input_dir',default=None,
