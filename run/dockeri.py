@@ -37,8 +37,8 @@ idir_cfg = cfg['volumes']['input'] if args.input_dir is None else args.input_dir
 idir_cfg = os.path.abspath(idir_cfg)
 odir_cfg = cfg['volumes']['output'] if args.output_dir is None else args.output_dir
 odir_cfg = os.path.abspath(odir_cfg)
-cmdline += ' -v {0}:{1}'.format(idir_cfg,'/data/input')
-cmdline += ' -v {0}:{1}'.format(odir_cfg,'/data/output')
+cmdline += ' -v {0}:{1}'.format(idir_cfg,'/work/input')
+cmdline += ' -v {0}:{1}'.format(odir_cfg,'/work/output')
 
 # option for accessing the x11
 if args.with_x11:
