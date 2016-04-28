@@ -51,12 +51,6 @@ class Config:
         d['ports'].update(_d)
 
         # verify the 'volumes' section
-#        if not d.has_key('volumes'):
-#            d['volumes'] = {}
-#        dsec = d['volumes']
-#        for k,v in self.volumes.items():
-#            if not dsec.has_key(k):
-#                dsec[k] = v
         if not d.has_key('volumes'):
             d['volumes'] = {}
         _d = self.volumes.copy()

@@ -12,6 +12,7 @@
   
 ### directory content
 -----
+```
 .
 ├── bin
 │   └── dockeri -> ../dockeri.py
@@ -24,6 +25,7 @@
 ├── dockeri.py
 ├── config.py
 └── x11.py
+```
 -----
 
 ## recognised options

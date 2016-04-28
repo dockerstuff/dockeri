@@ -42,7 +42,7 @@ image = i_cfg if i_cfg is not '' else args.image
 ## HACK
 for d,h in cfg['volumes'].items():
     if not d in ('input','output'):
-        _ddir = '/' + d
+        _ddir = os.path.abspath(os.path.expandvars(d))
         _hdir = os.path.abspath(os.path.expandvars(h))
         cmdline += ' -v {0}:{1}'.format(_hdir,_ddir)
 idir_cfg = cfg['volumes']['input'] if args.input_dir is None else args.input_dir
