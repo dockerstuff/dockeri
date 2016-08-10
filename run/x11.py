@@ -44,5 +44,5 @@ def get_DISPLAY():
     else:
         print("System not supported.")
         return None
-    print 'DISPLAY={}'.format(DISPLAY)
+    # print 'DISPLAY={}'.format(DISPLAY)
     return DISPLAY
