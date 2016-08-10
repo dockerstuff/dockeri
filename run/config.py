@@ -8,10 +8,8 @@ from ConfigParser import InterpolationMissingOptionError
 # -/bin
 
 class Config:
-    main     = { 'image'  : '' }
-    volumes  = { 'input'  : 'input',
-                 'output' : 'output',
-    }
+    main     = { 'image' : '' }
+    volumes  = { 'io'    : 'io'}
     ports    = {}
 
     def __init__(self,configfile=None,defaults={}):
