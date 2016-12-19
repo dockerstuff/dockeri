@@ -12,18 +12,25 @@ except ImportError:
 
 def vmip4darwin():
     ipaddr = None
-    for i in range(9):
-        netint = "vboxnet{}".format(i)
-        cmdline = ["ifconfig",netint]
-        if subprocess.call(cmdline,stdout=DEVNULL,stderr=STDOUT)!=0:
-            continue
-        ifout = subprocess.check_output(cmdline)
-        cmdline = ["awk","{if(/inet/){print substr($2,1)}}"]
-        proc = subprocess.Popen(cmdline,stdout=PIPE,stderr=PIPE,stdin=PIPE)
-        out,err = proc.communicate(ifout)
-        out = out.strip()
-        if out is not "":
-            ipaddr = out
+    try:
+        assert False
+        cmdline = ["docker-machine","ip","default"]
+        subprocess.call(cmdline,stdout=DEVNULL,stderr=STDOUT)
+        ipaddr = subprocess.check_output(cmdline)
+        ipaddr = ipaddr.strip()
+    except:
+        for i in range(9):
+            netint = "vboxnet{}".format(i)
+            cmdline = ["ifconfig",netint]
+            if subprocess.call(cmdline,stdout=DEVNULL,stderr=STDOUT)!=0:
+                continue
+            ifout = subprocess.check_output(cmdline)
+            cmdline = ["awk","{if(/inet/){print substr($2,1)}}"]
+            proc = subprocess.Popen(cmdline,stdout=PIPE,stderr=PIPE,stdin=PIPE)
+            out,err = proc.communicate(ifout)
+            out = out.strip()
+            if out is not "":
+                ipaddr = out
     return ipaddr
 
 def x114darwin():
