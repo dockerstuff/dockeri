@@ -100,7 +100,7 @@ def parse_config_volumes(cfg, parser=None, cmdline=''):
 
 def main(argv):
     # Base command-line
-    cmdline = 'docker run'
+    cmdline = 'docker run --rm'
 
 
     import argparse
