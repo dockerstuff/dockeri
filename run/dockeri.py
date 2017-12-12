@@ -2,6 +2,11 @@
 import os
 import sys
 
+try:
+    from subprocess import DEVNULL  # py3k
+except ImportError:
+    DEVNULL = open(os.devnull, 'wb')
+
 
 def available_configs():
     '''
@@ -107,18 +112,18 @@ def main(argv):
     import argparse
     parser = argparse.ArgumentParser(description='Interface for Docker containers.')
 
-    parser.add_argument('-w','--io',dest='io_dir',default=None,
+    parser.add_argument('-w', '--io', dest='io_dir', default=None,
                         help='host directory to use for files I/O with container')
-    parser.add_argument('-x',dest='with_x11',action='store_true',
+    parser.add_argument('-x', dest='with_x11', action='store_true',
                         help='route x11 from the container?')
     parser.add_argument('-d', dest='detached', action='store_true',
                         help='runs non-interactively (detached mode)')
     # parser.add_argument('-f','--file',dest='filename',
     #                     help='filename (found inside io-dir) to argument the container entrypoint')
 
-    parser.add_argument('-n','--dry-run', dest='dry_run', action='store_true',
+    parser.add_argument('-n', '--dry-run', dest='dry_run', action='store_true',
                         help="don't run the container, just print the command-line instead")
-    parser.add_argument('-l','--list', dest='list', action='store_true',
+    parser.add_argument('-l', '--list', dest='list', action='store_true',
                         help='print preset list of images')
 
     args = parser.parse_known_args()
@@ -143,6 +148,9 @@ def main(argv):
     if not out:
         return os.EX_DATAERR
     parser, cmdline = out
+
+    if not args.detached:
+        cmdline += ' -it'
 
     # If no IO dir was given, it takes the default one
     iodir_cfg = cfg['volumes']['io'] if args.io_dir is None else args.io_dir
@@ -178,6 +186,7 @@ def main(argv):
         import subprocess
         cmdline = shlex.split(cmdline)
         p = subprocess.Popen(cmdline,
+                             stdin=DEVNULL, #sys.stdin,
                              stdout=sys.stdout,
                              stderr=sys.stderr)
         pid = p.pid
