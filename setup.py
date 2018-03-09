@@ -3,7 +3,6 @@ from setuptools import find_packages, setup
 
 import versioneer
 
-# Set affiliated package-specific settings
 PACKAGENAME = 'dockeri'
 DESCRIPTION='Multiplatform CLI for Docker'
 
@@ -12,8 +11,7 @@ AUTHOR_EMAIL = 'carlos.brandt@ssdc.asi.it'
 LICENSE = 'GPL'
 URL = 'https://github.com/chbrandt/docker_interface'
 
-# Treat everything in scripts except README.rst as a script to be installed
-scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))]
+scripts = [fname for fname in glob.glob(os.path.join('bin', '*'))]
 
 packages = find_packages()
 
