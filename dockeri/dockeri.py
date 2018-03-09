@@ -188,19 +188,23 @@ def main(argv):
         print( cmdline)
         print( "#", '-'*(len(cmdline)-1))
     else:
-        import shlex
-        import subprocess
-        cmdline = shlex.split(cmdline)
-        p = subprocess.Popen(cmdline,
-                             #stdin=DEVNULL, #sys.stdin,
-                             stdin=sys.stdin,
-                             stdout=sys.stdout,
-                             stderr=sys.stderr)
-        pid = p.pid
-        print("#", '-*-'*len(cmdline))
-        print("Container '{}' from image '{}' is running".format('nameit', image))
-        print("The parent's PID is: {}".format(pid))
-        print("#", '-*-'*len(cmdline))
+        os.system(cmdline)
+#        import shlex
+#        import subprocess
+#        from subprocess import Popen, PIPE
+#        cmdline = shlex.split(cmdline)
+#        p = Popen(cmdline,
+#                             #stdin=DEVNULL, #sys.stdin,
+#                             stdin=sys.stdin,
+#                             stdout=sys.stdout,
+#                             stderr=sys.stderr
+#                             )
+#
+#        pid = p.pid
+#        print("#", '-*-'*len(cmdline))
+#        print("Container '{}' from image '{}' is running".format(args.image, image))
+#        print("The parent's PID is: {}".format(pid))
+#        print("#", '-*-'*len(cmdline))
 
     return os.EX_OK
 
