@@ -4,6 +4,9 @@ from __future__ import absolute_import, print_function
 import os
 import sys
 
+from . import config
+from . import x11
+
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -14,7 +17,6 @@ def available_configs():
     '''
     Search for available image/config file definitions
     '''
-    from . import config
     cfgfiles = config.config_files()
     imagesAvail = [os.path.basename(fn).split('.')[0] for fn in cfgfiles]
     return imagesAvail
@@ -145,7 +147,6 @@ def main(argv):
     args = args[0]
 
     # read config (file) for asked image
-    import config
     cfg = config.main(args.image)
 
     out = parse_config_volumes(cfg, parser, cmdline)
@@ -165,7 +166,6 @@ def main(argv):
 
     # option for accessing the x11
     if not args.without_x11:
-        import x11
         _x11 = '/tmp/.X11-unix'
         _dsp = x11.get_DISPLAY()
         cmdline += ' -v {0}:{1} -e DISPLAY={2}'.format(_x11, _x11, _dsp)
@@ -204,8 +204,3 @@ def main(argv):
 
     return os.EX_OK
 
-
-out = main(sys.argv[1:])
-if out == os.EX_CONFIG:
-    sys.exit(os.EX_OK)
-sys.exit(out)

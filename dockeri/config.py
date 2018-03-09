@@ -1,6 +1,10 @@
 import os
-import configparser
-from configparser import InterpolationMissingOptionError
+try:
+    from configparser import SafeConfigParser
+    from configparser import InterpolationMissingOptionError
+except:
+    from ConfigParser import SafeConfigParser
+    from ConfigParser import InterpolationMissingOptionError
 from glob import glob
 import shutil
 
@@ -24,7 +28,7 @@ class Config:
         self.config = self.filter()
 
     def parse(self, configfile, defaults):
-        parser = configparser.SafeConfigParser(defaults, allow_no_value=True)
+        parser = SafeConfigParser(defaults, allow_no_value=True)
         parser.read(configfile)
         return parser
 
