@@ -125,7 +125,9 @@ def main(argv):
 
     if args.list:
         print 'List of available/preset images:'
-        for im in available_configs():
+        configs = available_configs()
+        configs.sort()
+        for im in configs:
             print '- {}'.format(im)
         return os.EX_CONFIG
 
