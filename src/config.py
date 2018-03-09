@@ -1,12 +1,16 @@
 import os
-import ConfigParser
-from ConfigParser import InterpolationMissingOptionError
+import configparser
+from configparser import InterpolationMissingOptionError
+from glob import glob
+import shutil
 
 # Environment variable defining dockeri base dir: 'DOCKERIRDIR'
 # Inside this dir should be the dirs/files:
 # -/conf.d
 # -/bin
 
+DOCKERI_DEFAULT_DIR='$HOME/.dockeri'
+HERE=os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     main     = {'image' : ''}
@@ -20,7 +24,7 @@ class Config:
         self.config = self.filter()
 
     def parse(self, configfile, defaults):
-        parser = ConfigParser.SafeConfigParser(defaults, allow_no_value=True)
+        parser = configparser.SafeConfigParser(defaults, allow_no_value=True)
         parser.read(configfile)
         return parser
 
@@ -34,8 +38,8 @@ class Config:
             try:
                 for k,v in parser.items(sec):
                     dsec[k] = v
-            except InterpolationMissingOptionError, e:
-                print e
+            except InterpolationMissingOptionError as e:
+                print(e)
             d[sec] = dsec
         return d
 
@@ -43,21 +47,21 @@ class Config:
         d = self._parser2dict()
 
         # verify the 'ports' section
-        if not d.has_key('ports'):
+        if 'ports' not in d:
             d['ports'] = {}
         _d = self.ports.copy()
         _d.update(d['ports'])
         d['ports'].update(_d)
 
         # verify the 'volumes' section
-        if not d.has_key('volumes'):
+        if 'volumes' not in d:
             d['volumes'] = {}
         _d = self.volumes.copy()
         _d.update(d['volumes'])
         d['volumes'].update(_d)
 
         # verify the 'main' section
-        if not d.has_key('main'):
+        if 'main' not in d:
             d['main'] = {}
         _d = self.main.copy()
         _d.update(d['main'])
@@ -83,7 +87,6 @@ def select_file(fileslist, image):
 
 
 def read_dir(configdir):
-    from glob import glob
     _abspath = os.path.abspath(configdir)
     cfiles = []
     if os.path.isdir(_abspath):
@@ -98,10 +101,15 @@ def config_files(DOCKERI_DIR=None):
     if DOCKERI_DIR:
         DOCKERIUSER = DOCKERI_DIR
     else:
-        DOCKERIUSER = os.path.expandvars('$HOME/.dockeri')
+        DOCKERIUSER = os.path.expandvars(DOCKERI_DEFAULT_DIR)
         if not os.path.isdir(DOCKERIUSER):
             os.mkdir(DOCKERIUSER)
-    cfiles = read_dir(os.path.join(DOCKERIUSER, 'conf.d'))
+        DOCKERICONF = os.path.join(DOCKERIUSER, 'conf.d')
+        if not os.path.isdir(DOCKERICONF):
+            os.mkdir(DOCKERICONF)
+            for fcfg in glob(os.path.join(HERE, 'conf.d', '*.cfg')):
+                shutil.copy(fcfg, DOCKERICONF)
+    cfiles = read_dir(DOCKERICONF)
     return cfiles
 
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, print_function
+
 import os
 import sys
 
@@ -12,8 +14,7 @@ def available_configs():
     '''
     Search for available image/config file definitions
     '''
-    import os
-    import config
+    from . import config
     cfgfiles = config.config_files()
     imagesAvail = [os.path.basename(fn).split('.')[0] for fn in cfgfiles]
     return imagesAvail
@@ -68,7 +69,7 @@ def parse_config_volumes(cfg, parser=None, cmdline=''):
 
                 # 'jump' flag is used to escape a loop whenever the current and next
                 # iterations are bounded; it will happen when '=' between option
-                # and argument is *not* used
+                # and argument are missing
                 jump = False
 
                 for i, arg in enumerate(extra_args):
@@ -113,9 +114,9 @@ def main(argv):
     parser = argparse.ArgumentParser(description='Interface for Docker containers.')
 
     parser.add_argument('-w', '--io', dest='io_dir', default=None,
-                        help='host directory to use for files I/O with container')
-    parser.add_argument('-x', dest='with_x11', action='store_true',
-                        help='route x11 from the container?')
+                        help="directory to use for files exchange with container (inside container it is '/work'.")
+    parser.add_argument('--nox', dest='without_x11', action='store_true',
+                        help='do *not* export graphical interface (x11) from the container to host (*do* export by deafult)')
     parser.add_argument('-d', dest='detached', action='store_true',
                         help='runs non-interactively (detached mode)')
     # parser.add_argument('-f','--file',dest='filename',
@@ -124,17 +125,17 @@ def main(argv):
     parser.add_argument('-n', '--dry-run', dest='dry_run', action='store_true',
                         help="don't run the container, just print the command-line instead")
     parser.add_argument('-l', '--list', dest='list', action='store_true',
-                        help='print preset list of images')
+                        help='print list of preset images')
 
     args = parser.parse_known_args()
     args = args[0]
 
     if args.list:
-        print 'List of available/preset images:'
+        print('List of available/preset images:')
         configs = available_configs()
         configs.sort()
         for im in configs:
-            print '- {}'.format(im)
+            print('- {}'.format(im))
         return os.EX_CONFIG
 
     parser.add_argument('image',
@@ -142,11 +143,13 @@ def main(argv):
 
     args = parser.parse_known_args()
     args = args[0]
+
     # read config (file) for asked image
     import config
     cfg = config.main(args.image)
 
     out = parse_config_volumes(cfg, parser, cmdline)
+
     if not out:
         return os.EX_DATAERR
     parser, cmdline = out
@@ -154,13 +157,14 @@ def main(argv):
     if not args.detached:
         cmdline += ' -it'
 
-    # If no IO dir was given, it takes the default one
-    iodir_cfg = cfg['volumes']['io'] if args.io_dir is None else args.io_dir
-    iodir_cfg = os.path.abspath(iodir_cfg)
-    cmdline += ' -v {0}:{1}'.format(iodir_cfg, '/work/io')
+    # If IO dir was given, map it to "/work" inside the container
+    #
+    if args.io_dir:
+        io_dir = os.path.abspath(args.io_dir)
+        cmdline += ' -v {0}:{1}'.format(io_dir, '/work')
 
     # option for accessing the x11
-    if args.with_x11:
+    if not args.without_x11:
         import x11
         _x11 = '/tmp/.X11-unix'
         _dsp = x11.get_DISPLAY()
@@ -180,22 +184,23 @@ def main(argv):
     #     cmdline += ' {0}'.format(args.filename)
 
     if args.dry_run:
-        print "#", '-'*(len(cmdline)-1)
-        print cmdline
-        print "#", '-'*(len(cmdline)-1)
+        print( "#", '-'*(len(cmdline)-1))
+        print( cmdline)
+        print( "#", '-'*(len(cmdline)-1))
     else:
         import shlex
         import subprocess
         cmdline = shlex.split(cmdline)
         p = subprocess.Popen(cmdline,
-                             stdin=DEVNULL, #sys.stdin,
+                             #stdin=DEVNULL, #sys.stdin,
+                             stdin=sys.stdin,
                              stdout=sys.stdout,
                              stderr=sys.stderr)
         pid = p.pid
-        print "#", '-*-'*len(cmdline)
-        print "Container '{}' from image '{}' is running".format('nameit', image)
-        print "The parent's PID is: {}".format(pid)
-        print "#", '-*-'*len(cmdline)
+        print("#", '-*-'*len(cmdline))
+        print("Container '{}' from image '{}' is running".format('nameit', image))
+        print("The parent's PID is: {}".format(pid))
+        print("#", '-*-'*len(cmdline))
 
     return os.EX_OK
 
