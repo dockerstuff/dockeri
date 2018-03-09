@@ -7,19 +7,20 @@ from ConfigParser import InterpolationMissingOptionError
 # -/conf.d
 # -/bin
 
+
 class Config:
-    main     = { 'image' : '' }
-    volumes  = { 'io'    : 'io'}
+    main     = {'image' : ''}
+    volumes  = {'io'    : 'io'}
     ports    = {}
 
-    def __init__(self,configfile=None,defaults={}):
+    def __init__(self, configfile=None, defaults={}):
         self.parser = None
         if configfile:
-            self.parser = self.parse(configfile,defaults)
+            self.parser = self.parse(configfile, defaults)
         self.config = self.filter()
 
-    def parse(self,configfile,defaults):
-        parser = ConfigParser.SafeConfigParser(defaults,allow_no_value=True)
+    def parse(self, configfile, defaults):
+        parser = ConfigParser.SafeConfigParser(defaults, allow_no_value=True)
         parser.read(configfile)
         return parser
 
@@ -33,7 +34,7 @@ class Config:
             try:
                 for k,v in parser.items(sec):
                     dsec[k] = v
-            except InterpolationMissingOptionError,e:
+            except InterpolationMissingOptionError, e:
                 print e
             d[sec] = dsec
         return d
@@ -67,38 +68,45 @@ class Config:
     def configs(self):
         return self.config
 
-def parse_file(configfile,defaults={}):
-    #filename = os.path.basename(configfile)
-    #_alias = filename.split('.')[0]
-    config = Config(configfile,defaults)
+
+def parse_file(configfile, defaults={}):
+    config = Config(configfile, defaults)
     return config.configs()
 
-def select_file(fileslist,image):
+
+def select_file(fileslist, image):
     for f in fileslist:
         root = os.path.basename(f).split('.')[0]
         if root == image:
             return f
     return None
 
+
 def read_dir(configdir):
     from glob import glob
-    import os
     _abspath = os.path.abspath(configdir)
-    cfiles = glob(os.path.join(_abspath,'*.cfg'))
+    cfiles = []
+    if os.path.isdir(_abspath):
+        cfiles = glob(os.path.join(_abspath, '*.cfg'))
     return cfiles
 
-def config_files(DOCKERIR_DIR=None):
-    import os
-    DOCKERIRDIR = ""
-    if os.environ.has_key('DOCKERIRDIR'):
-        DOCKERIRDIR = os.environ['DOCKERIRDIR']
-    if DOCKERIR_DIR:
-        DOCKERIRDIR = DOCKERIR_DIR
-    cfiles = read_dir(os.path.join(DOCKERIRDIR,'conf.d'))
+
+def config_files(DOCKERI_DIR=None):
+    DOCKERIUSER = ""
+    # if 'DOCKERIUSER' in os.environ:
+    #     DOCKERIUSER = os.environ['DOCKERIUSER']
+    if DOCKERI_DIR:
+        DOCKERIUSER = DOCKERI_DIR
+    else:
+        DOCKERIUSER = os.path.expandvars('$HOME/.dockeri')
+        if not os.path.isdir(DOCKERIUSER):
+            os.mkdir(DOCKERIUSER)
+    cfiles = read_dir(os.path.join(DOCKERIUSER, 'conf.d'))
     return cfiles
 
-def main(image,DOCKERDIR=None):
+
+def main(image, DOCKERDIR=None):
     cfiles = config_files(DOCKERDIR)
-    cfgfile = select_file(cfiles,image)
+    cfgfile = select_file(cfiles, image)
     cfg = parse_file(cfgfile)
     return cfg
