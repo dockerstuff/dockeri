@@ -1,1 +1,2 @@
 src/_version.py export-subst
+dockeri/_version.py export-subst
