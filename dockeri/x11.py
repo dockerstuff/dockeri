@@ -13,25 +13,6 @@ except ImportError:
 
 def hostip4darwin():
     ipaddr = None
-    # try:
-    #     assert False
-    #     cmdline = ["docker-machine","ip","default"]
-    #     subprocess.call(cmdline,stdout=DEVNULL,stderr=STDOUT)
-    #     ipaddr = subprocess.check_output(cmdline)
-    #     ipaddr = ipaddr.strip()
-    # except:
-    #     for i in range(9):
-    #         netint = "vboxnet{}".format(i)
-    #         cmdline = ["ifconfig",netint]
-    #         if subprocess.call(cmdline,stdout=DEVNULL,stderr=STDOUT)!=0:
-    #             continue
-    #         ifout = subprocess.check_output(cmdline)
-    #         cmdline = ["awk","{if(/inet/){print substr($2,1)}}"]
-    #         proc = subprocess.Popen(cmdline,stdout=PIPE,stderr=PIPE,stdin=PIPE)
-    #         out,err = proc.communicate(ifout)
-    #         out = out.strip()
-    #         if out is not "":
-    #             ipaddr = out
     cmdline = 'ifconfig en0'.split()
     if subprocess.call(cmdline, stdout=DEVNULL, stderr=STDOUT) != 0:
         return None
@@ -42,8 +23,10 @@ def hostip4darwin():
     out = out.strip()
     if out is not "":
         ipaddr = out
+    ipaddr = ipaddr.decode('utf-8')
     cmdline = ['xhost', '+{}'.format(ipaddr)]
-    proc = subprocess.call(cmdline, stdout=DEVNULL, stderr=STDOUT)
+    #proc = subprocess.call(cmdline, stdout=DEVNULL, stderr=STDOUT)
+    _= os.system(' '.join(cmdline))
     return ipaddr
 
 
@@ -52,7 +35,7 @@ def x114darwin():
     # proc = subprocess.Popen(cmdline.split(),stdout=PIPE,stderr=PIPE,stdin=PIPE)
     #procid = proc.pid
     vmip = hostip4darwin()
-    return '{0}:0'.format(vmip)
+    return '{!s}:0'.format(vmip)
 
 
 def x114linux():
