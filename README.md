@@ -40,7 +40,7 @@ $ pip install .
 After installing it, `dockeri` is available from anywhere in the system.
 
 Simply type `dockeri` to gets is short *usage* signature:
-```bash
+```
 $ dockeri
 
 usage: dockeri [-h] [-w IO_DIR] [--nox] [-d] [-n] [-l] image
@@ -52,7 +52,7 @@ $ dockeri ubuntu
 ```
 
 `dockeri` has also a *help* option to explain you better the available options:
-```bash
+```
 $ dockeri --help
 
 usage: dockeri [-h] [-w IO_DIR] [--nox] [-d] [-n] [-l]
