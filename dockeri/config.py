@@ -13,13 +13,15 @@ import shutil
 # -/conf.d
 # -/bin
 
-DOCKERI_DEFAULT_DIR='$HOME/.dockeri'
-HERE=os.path.abspath(os.path.dirname(__file__))
+DOCKERI_DEFAULT_DIR = '$HOME/.dockeri'
+HERE = os.path.abspath(os.path.dirname(__file__))
+
 
 class Config:
-    main     = {'image' : ''}
-    volumes  = {'io'    : 'io'}
-    ports    = {}
+
+    main = {'image': ''}
+    volumes = {'io': 'io'}
+    ports = {}
 
     def __init__(self, configfile=None, defaults={}):
         self.parser = None
@@ -40,7 +42,7 @@ class Config:
         for sec in parser.sections():
             dsec = {}
             try:
-                for k,v in parser.items(sec):
+                for k, v in parser.items(sec):
                     dsec[k] = v
             except InterpolationMissingOptionError as e:
                 print(e)
