@@ -15,19 +15,15 @@ URL = 'https://github.com/chbrandt/docker_interface'
 
 scripts = [fname for fname in glob.glob(os.path.join('bin', '*'))]
 
-packages = find_packages()
-
 setup(name=PACKAGENAME,
       version=versioneer.get_version(),
       cmdclass=versioneer.get_cmdclass(),
       description=DESCRIPTION,
-      packages=find_packages(),
-      package_data={'':['conf.d/*.cfg']},
+      packages=['dockeri'],
+      package_data={'dockeri':['conf.d/*.cfg']},
       scripts=scripts,
       author=AUTHOR,
       author_email=AUTHOR_EMAIL,
       license=LICENSE,
-      url=URL,
-      zip_safe=False,
-      use_2to3=True
+      url=URL
 )
