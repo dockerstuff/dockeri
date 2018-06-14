@@ -22,7 +22,7 @@ def available_configs():
     return imagesAvail
 
 
-def parse_config_volumes(cfg, parser=None, cmdline=''):
+def parse_config_volumes(cfg, extra_args=None, cmdline=''):
     # i/o volumes
     # Check whether there is any to mount
     # Exception case is the 'io' directory, which is always present; it is just
@@ -38,7 +38,7 @@ def parse_config_volumes(cfg, parser=None, cmdline=''):
     # will assemble a command-line with a volume mount '$PWD/products' to
     # '/products', but 'ingredients' will be a new option for command-line.
 
-    known_args, extra_args = parser.parse_known_args()
+    extra_args = extra_args or []
 
     for on_container, on_host in cfg['volumes'].items():
         d = on_container
@@ -69,9 +69,9 @@ def parse_config_volumes(cfg, parser=None, cmdline=''):
                 # ```
                 import re
 
-                # 'jump' flag is used to escape a loop whenever the current and next
-                # iterations are bounded; it will happen when '=' between option
-                # and argument are missing
+                # 'jump' flag is used to escape a loop iteration whenever the
+                # current and next iterations are bounded; it will happen
+                # when '=' between option and argument are missing
                 jump = False
 
                 for i, arg in enumerate(extra_args):
@@ -105,7 +105,7 @@ def parse_config_volumes(cfg, parser=None, cmdline=''):
                     return False
                 cmdline += ' -v {0}:{1}'.format(_hdir, _ddir)
 
-    return parser, cmdline
+    return cmdline
 
 
 def main(argv):
@@ -129,8 +129,7 @@ def main(argv):
     parser.add_argument('-l', '--list', dest='list', action='store_true',
                         help='print list of preset images')
 
-    args = parser.parse_known_args()
-    args = args[0]
+    args, _ = parser.parse_known_args()
 
     if args.list:
         print('List of available/preset images:')
@@ -143,17 +142,23 @@ def main(argv):
     parser.add_argument('image',
                         help="name of the image to run. See '-l' for a preset list.")
 
-    args = parser.parse_known_args()
-    args = args[0]
+    args, _ = parser.parse_known_args()
+
+    # Arguments -- options or positional -- after the image name are
+    # *not* parsed; they are left there for the container to handle (if it does)
+    pos_image_arg = sys.argv.index(args.image)
+    app_arguments = sys.argv[pos_image_arg+1:]
+    args_to_parse = sys.argv[1:pos_image_arg+1]
+
+    args, extra_args = parser.parse_known_args(args_to_parse)
 
     # read config (file) for asked image
     cfg = config.main(args.image)
 
-    out = parse_config_volumes(cfg, parser, cmdline)
+    cmdline = parse_config_volumes(cfg, extra_args, cmdline)
 
-    if not out:
+    if not cmdline:
         return os.EX_DATAERR
-    parser, cmdline = out
 
     if not args.detached:
         cmdline += ' -it'
@@ -179,32 +184,16 @@ def main(argv):
     i_cfg = cfg['main'].get('image')
     image = i_cfg if i_cfg is not '' else args.image
 
-    cmdline += ' {0}'.format(image)
-    # if args.filename is not None:
-    #     cmdline += ' {0}'.format(args.filename)
+    cmdline += ' {0} '.format(image)
+
+    # Extra, container's problem arguments:
+    cmdline += ' '.join(app_arguments)
 
     if args.dry_run:
-        print( "#", '-'*(len(cmdline)-1))
-        print( cmdline)
-        print( "#", '-'*(len(cmdline)-1))
+        print("#", '-'*(len(cmdline)-1))
+        print(cmdline)
+        print("#", '-'*(len(cmdline)-1))
     else:
         os.system(cmdline)
-#        import shlex
-#        import subprocess
-#        from subprocess import Popen, PIPE
-#        cmdline = shlex.split(cmdline)
-#        p = Popen(cmdline,
-#                             #stdin=DEVNULL, #sys.stdin,
-#                             stdin=sys.stdin,
-#                             stdout=sys.stdout,
-#                             stderr=sys.stderr
-#                             )
-#
-#        pid = p.pid
-#        print("#", '-*-'*len(cmdline))
-#        print("Container '{}' from image '{}' is running".format(args.image, image))
-#        print("The parent's PID is: {}".format(pid))
-#        print("#", '-*-'*len(cmdline))
 
     return os.EX_OK
-
