@@ -25,15 +25,11 @@ def hostip4darwin():
         ipaddr = out
     ipaddr = ipaddr.decode('utf-8')
     cmdline = ['xhost', '+{}'.format(ipaddr)]
-    #proc = subprocess.call(cmdline, stdout=DEVNULL, stderr=STDOUT)
     _= os.system(' '.join(cmdline))
     return ipaddr
 
 
 def x114darwin():
-    # cmdline = 'socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"{0}\"'.format(_DISPLAY)
-    # proc = subprocess.Popen(cmdline.split(),stdout=PIPE,stderr=PIPE,stdin=PIPE)
-    #procid = proc.pid
     vmip = hostip4darwin()
     return '{!s}:0'.format(vmip)
 
@@ -50,5 +46,4 @@ def get_DISPLAY():
     else:
         print("System not supported.")
         return None
-    # print 'DISPLAY={}'.format(DISPLAY)
     return DISPLAY
