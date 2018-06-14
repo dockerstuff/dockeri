@@ -4,5 +4,4 @@ __version__ = get_versions()['version']
 del get_versions
 
 
-from .dockeri import main
-
+# from .dockeri import main

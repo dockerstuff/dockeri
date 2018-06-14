@@ -2,10 +2,10 @@
 import sys
 import os
 
-from dockeri import main
+from dockeri import dockeri
 
 if __name__ == '__main__':
-    out = main(sys.argv[1:])
+    out = dockeri.main(sys.argv[1:])
     if out == os.EX_CONFIG:
         sys.exit(os.EX_OK)
     sys.exit(out)
