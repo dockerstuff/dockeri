@@ -84,7 +84,7 @@ def parse_config_volumes(cfg, parser=None, cmdline=''):
                     expected_arg = '--' + d
                     _match = re.match('^'+expected_arg, arg)
                     if _match is None:
-                        print >> sys.stderr, "Error: Non recognised option '{}'".format(arg)
+                        print("Error: Non recognised option '{}'".format(arg),sys.stderr)
                         continue
                     assert _match.pos == 0
 
@@ -101,7 +101,7 @@ def parse_config_volumes(cfg, parser=None, cmdline=''):
                         _ddir = '/'+d
 
                 if _ddir is None or _hdir is None:
-                    print >> sys.stderr, "Error: argument for '{}' not given".format(d)
+                    print("Error: argument for '{}' not given".format(d), file=sys.stderr)
                     return False
                 cmdline += ' -v {0}:{1}'.format(_hdir, _ddir)
 
