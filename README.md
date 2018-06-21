@@ -1,5 +1,7 @@
 # Dockeri
 
+`dockeri` eases the use of `docker`.
+
 Use `dockei` to **run** docker containers with a simplified call.
 When using frequently containers, with always the same --and long--
 '`docker run`' command line, starts to get boring all that typing.
