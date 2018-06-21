@@ -23,7 +23,30 @@ Dockeri features:
 - [x] deal with graphical (X11) interface access in Linux and Mac
 
 
-## Install
+## How to install?
+
+Docker*i* works with Python2 *and* Python3, and has *no* external dependencies; it uses only Python's core/std-lib.
+
+*If you're a Mac user, see also below, the MacOSX section*
+
+`dockeri` is implemented in Python. Runs in Python 2 and 3, and
+does *not* depend on external libraries; only Python's standard library.
+</div>
+
+To install it, simply goes
+
+* *download* the last [release](https://github.com/chbrandt/dockeri/releases)
+* *unpack* the downloaded file
+* go inside the package
+
+and type:
+```bash
+$ python setup.py install
+```
+or (recommended):
+```bash
+$ pip install .
+```
 
 ---
 
@@ -37,22 +60,7 @@ After XQuartz is installed the option for "*Allow connections from network clien
 
 ---
 
-`dockeri` is implemented in Python. Runs in Python 2 and 3, and
-does *not* depend on external libraries; only Python's standard library.
-</div>
-
-To install, download the last [release](https://github.com/chbrandt/dockeri/releases)
-and do:
-```bash
-$ python setup.py install
-```
-or
-```bash
-$ pip install .
-```
-
-
-## How to use:
+## How to use?
 
 After installing it, `dockeri` is available from anywhere in the system.
 
