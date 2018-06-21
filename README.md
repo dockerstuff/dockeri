@@ -1,6 +1,6 @@
-# Dockeri
+# Docker*i*
 
-`dockeri` eases the use of `docker`.
+Docker*i* is that missing *interface* for Docker.
 
 Use `dockei` to **run** docker containers with a simplified call.
 When using frequently containers, with always the same --and long--
@@ -14,17 +14,32 @@ tools I use daily between Linux and MacOS systems.
 Some of these tools will make use of network with a browser/html interface,
 some will use X11 system and most of them will accept/return data files.
 
-This interface has two purposes:
-* to save images' common options in a config file
-* to deal with graphical (X11) interface access in Linux and Mac
+The main purpose of `dockeri` is to handle the complexity (and, yes, uglyness)
+of `docker run` command line; this is particularly for the case of everyday
+containers used as app bundles. 
+
+Dockeri features:
+- [x] save images' common options in a config file
+- [x] deal with graphical (X11) interface access in Linux and Mac
 
 
 ## Install
 
-> MacOSX users must have [XQuartz](https://www.xquartz.org/) installed if willing to export X11 interfaces from containers
+---
+
+#### MacOSX
+
+Mac users *must* have [XQuartz](https://www.xquartz.org/) installed if willing to use X from inside containers.
+
+After XQuartz is installed the option for "*Allow connections from network clients*" should be enabled:
+
+![XQuartz settings](https://github.com/chbrandt/dockeri/blob/master/docs/XQuartz_allow_connections.png)
+
+---
 
 `dockeri` is implemented in Python. Runs in Python 2 and 3, and
 does *not* depend on external libraries; only Python's standard library.
+</div>
 
 To install, download the last [release](https://github.com/chbrandt/dockeri/releases)
 and do:
