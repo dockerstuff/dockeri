@@ -56,7 +56,7 @@ Mac users *must* have [XQuartz](https://www.xquartz.org/) installed if willing t
 
 After XQuartz is installed the option for "*Allow connections from network clients*" should be enabled:
 
-![XQuartz settings](https://github.com/chbrandt/dockeri/blob/master/docs/XQuartz_allow_connections.png)
+![XQuartz settings]({{site.url}}{{site.baseurl}}/docs/XQuartz_allow_connections.png)
 
 ---
 
