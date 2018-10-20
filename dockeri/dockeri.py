@@ -114,16 +114,16 @@ def main(argv):
 
     import argparse
     parser = argparse.ArgumentParser(description='Interface for Docker containers.')
-
     parser.add_argument('-w', '--io', dest='io_dir', default=None,
                         help="directory to use for files exchange with container (inside container it is '/work'.")
     parser.add_argument('--nox', dest='without_x11', action='store_true',
                         help='do *not* export graphical interface (x11) from the container to host (*do* export by deafult)')
+    # DETACHED mode. If not asked for, later we will add '-it' to the command line
     parser.add_argument('-d', dest='detached', action='store_true',
                         help='runs non-interactively (detached mode)')
+    # INIT SCRIPT; we have to put here a .rc like file to init the container's Bash
     # parser.add_argument('-f','--file',dest='filename',
     #                     help='filename (found inside io-dir) to argument the container entrypoint')
-
     parser.add_argument('-n', '--dry-run', dest='dry_run', action='store_true',
                         help="don't run the container, just print the command-line instead")
     parser.add_argument('-l', '--list', dest='list', action='store_true',
@@ -152,7 +152,7 @@ def main(argv):
 
     args, extra_args = parser.parse_known_args(args_to_parse)
 
-    # read config (file) for asked image
+    # read CONFIG file; if any for this image
     cfg = config.main(args.image)
 
     cmdline = parse_config_volumes(cfg, extra_args, cmdline)
