@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 
 import os
 import sys
+import argparse
 
 from . import config
 from . import x11
@@ -11,6 +12,9 @@ try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
+
+
+CMDLINE_BASE = 'docker run --rm'
 
 
 def available_configs():
@@ -39,6 +43,7 @@ def parse_config_volumes(cfg, extra_args=None, cmdline=''):
     # '/products', but 'ingredients' will be a new option for command-line.
 
     extra_args = extra_args or []
+    args_to_remove = []
 
     for on_container, on_host in cfg['volumes'].items():
         d = on_container
@@ -100,39 +105,50 @@ def parse_config_volumes(cfg, extra_args=None, cmdline=''):
                         _hdir = os.path.abspath(os.path.expandvars(h))
                         _ddir = '/'+d
 
+                    # Remove the current extra-arg from 'docker-args'
+                    args_to_remove.append(i)
+
                 if _ddir is None or _hdir is None:
                     print("Error: argument for '{}' not given".format(d), file=sys.stderr)
                     return False
                 cmdline += ' -v {0}:{1}'.format(_hdir, _ddir)
 
-    return cmdline
+    docker_args = [arg for i,arg in enumerate(extra_args) if i not in args_to_remove]
+    print(docker_args)
+    return cmdline, docker_args
 
 
 def main(argv):
-    # Base command-line
-    cmdline = 'docker run --rm'
+    # Init commands list
+    #
+    cmdline = CMDLINE_BASE
 
-    import argparse
-    parser = argparse.ArgumentParser(description='Interface for Docker containers.')
-    parser.add_argument('-w', '--io', dest='io_dir', default=None,
-                        help="directory to use for files exchange with container (inside container it is '/work'.")
+    parser = argparse.ArgumentParser(description="Add some automation to 'docker run'.")
+    # Default WORKDIR, mount a "$PWD/work" into container's "/work"
+    parser.add_argument('-w', '--work', dest='work_dir', default=None,
+                        help="Mount a local './work/' to a '/work/' inside the container.")
+    # Do NOT export X11.
+    # X server connects through a TCP socket, we search for an active network interface
     parser.add_argument('--nox', dest='without_x11', action='store_true',
-                        help='do *not* export graphical interface (x11) from the container to host (*do* export by deafult)')
+                        help="NOT export container's X11 to host.")
     # DETACHED mode. If not asked for, later we will add '-it' to the command line
     parser.add_argument('-d', dest='detached', action='store_true',
                         help='runs non-interactively (detached mode)')
     # INIT SCRIPT; we have to put here a .rc like file to init the container's Bash
     # parser.add_argument('-f','--file',dest='filename',
     #                     help='filename (found inside io-dir) to argument the container entrypoint')
+    # DRY-RUN: runs nothing but print the command line it *would* have run instead
     parser.add_argument('-n', '--dry-run', dest='dry_run', action='store_true',
                         help="don't run the container, just print the command-line instead")
+    # LIST preset images in dockeri config files
     parser.add_argument('-l', '--list', dest='list', action='store_true',
                         help='print list of preset images')
 
+    # Parse only these so far known arguments
     args, _ = parser.parse_known_args()
 
     if args.list:
-        print('List of available/preset images:')
+        print('List of available preset images:')
         configs = available_configs()
         configs.sort()
         for im in configs:
@@ -140,22 +156,25 @@ def main(argv):
         return os.EX_CONFIG
 
     parser.add_argument('image',
-                        help="name of the image to run. See '-l' for a preset list.")
+                        help="name of the image to run. See '-l'.")
 
     args, _ = parser.parse_known_args()
 
     # Arguments -- options or positional -- after the image name are
     # *not* parsed; they are left there for the container to handle (if it does)
     pos_image_arg = sys.argv.index(args.image)
+    print(pos_image_arg)
     app_arguments = sys.argv[pos_image_arg+1:]
     args_to_parse = sys.argv[1:pos_image_arg+1]
 
+    # extra_args will be either dockeri-image config arguments or docker's
     args, extra_args = parser.parse_known_args(args_to_parse)
 
     # read CONFIG file; if any for this image
     cfg = config.main(args.image)
 
-    cmdline = parse_config_volumes(cfg, extra_args, cmdline)
+    # Parsing for dockeri-images config arguments should return remaining (docker) arguments
+    cmdline, docker_args = parse_config_volumes(cfg, extra_args, cmdline)
 
     if not cmdline:
         return os.EX_DATAERR
@@ -163,11 +182,15 @@ def main(argv):
     if not args.detached:
         cmdline += ' -it'
 
+    # Supposedly, the docker-args
+    for a in docker_args:
+        cmdline += ' {}'.format(a)
+
     # If IO dir was given, map it to "/work" inside the container
     #
-    if args.io_dir:
-        io_dir = os.path.abspath(args.io_dir)
-        cmdline += ' -v {0}:{1}'.format(io_dir, '/work')
+    if args.work_dir:
+        work_dir = os.path.abspath(args.work_dir)
+        cmdline += ' -v {0}:{1}'.format(work_dir, '/work')
 
     # option for accessing the x11
     if not args.without_x11:

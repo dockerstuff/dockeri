@@ -19,6 +19,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
 
+    # Dockeri has some defaults fields, the name of the image is one
     main = {'image': ''}
     volumes = {'io': 'io'}
     ports = {}
@@ -30,11 +31,15 @@ class Config:
         self.config = self.filter()
 
     def parse(self, configfile, defaults):
+        # ConfigParser can access keys without values, working as flags.
+        # As in https://docs.python.org/3/library/configparser.html#configparser-objects,
+        # keys without values will be assined 'None' by the parser.
         parser = SafeConfigParser(defaults, allow_no_value=True)
         parser.read(configfile)
         return parser
 
     def _parser2dict(self):
+        # For some reason I read all sections/items to a dictionary
         d = {}
         parser = self.parser
         if not parser:
@@ -59,7 +64,7 @@ class Config:
         _d.update(d['ports'])
         d['ports'].update(_d)
 
-        # verify the 'volumes' section
+        # # verify the 'volumes' section
         if 'volumes' not in d:
             d['volumes'] = {}
         _d = self.volumes.copy()
